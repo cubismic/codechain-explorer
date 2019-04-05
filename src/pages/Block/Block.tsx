@@ -12,7 +12,7 @@ import { Error } from "../../components/error/Error/Error";
 import BlockTransactionList from "../../components/transaction/BlockTransactionList/BlockTransactionList";
 import CopyButton from "../../components/util/CopyButton/CopyButton";
 import HexString from "../../components/util/HexString/HexString";
-import { RequestBlock } from "../../request";
+import { RequestBlock, RequestCountsOfEachTransactionType } from "../../request";
 import { TransactionTypes } from "../../utils/Transactions";
 
 import "./Block.scss";
@@ -20,6 +20,7 @@ import "./Block.scss";
 interface State {
     block?: BlockDoc;
     notFound: boolean;
+    mytypes?: any;
 }
 
 interface Props {
@@ -56,7 +57,7 @@ class Block extends React.Component<Props, State> {
                 params: { id }
             }
         } = this.props;
-        const { block, notFound } = this.state;
+        const { block, notFound, mytypes } = this.state;
 
         if (notFound) {
             return (
@@ -132,11 +133,15 @@ class Block extends React.Component<Props, State> {
                         <div className="right-panel-item mt-3 mt-lg-0">
                             <h2># of Transaction types</h2>
                             <hr />
-                            {TransactionTypes.map(tt => {
+                            {
+                                (mytypes === undefined) && (<RequestCountsOfEachTransactionType onError={this.onError} onTxCounts={this.onTxCounts} blockNumber={block.number}/>)
+                            }
+
+                            { (mytypes !== undefined) && TransactionTypes.map(tt => {
                                 return [
                                     <div className="d-flex align-items-center" key="asset-info">
                                         <span className="mr-auto item-name">{tt}</span>
-                                        {/* FIXME: */}
+
                                         <span>{0}</span>
                                     </div>,
                                     <hr key="hr" />
@@ -160,6 +165,12 @@ class Block extends React.Component<Props, State> {
     private onError = (e: any) => {
         console.log(e);
     };
+
+    private onTxCounts = (c: any) => {
+        console.log(this.state.mytypes)
+        this.setState({mytypes: c})
+        console.log(this.state.mytypes)
+    }
 }
 
 export default Block;
